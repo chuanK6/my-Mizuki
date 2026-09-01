@@ -57,6 +57,16 @@ async function processAlbumFolder(
 		tags?: string[];
 		password?: string;
 		passwordHint?: string;
+		images?: {
+			id?: string;
+			url: string;
+			name?: string;
+			alt?: string;
+			title?: string;
+			publicId?: string;
+			cover?: boolean;
+			date?: string;
+		}[];
 	}
 	let info: AlbumInfo;
 	try {
@@ -106,6 +116,22 @@ async function processAlbumFolder(
 			? `/images/albums/${folderName}/${path.basename(coverPath)}`
 			: "";
 		photos = scanPhotos(folderPath, folderName);
+		if (Array.isArray(info.images)) {
+			photos.push(
+				...processExternalPhotos(
+					info.images.map((image) => ({
+						src: image.url,
+						id: image.id || image.publicId,
+						alt: image.alt || image.name,
+						title: image.title || image.name,
+						date: image.date,
+					})),
+					folderName,
+				),
+			);
+		}
+		if (info.cover && /^https?:\/\//iu.test(info.cover)) cover = info.cover;
+		else if (!cover && info.images?.[0]?.url) cover = info.images[0].url;
 	}
 
 	// 检查是否隐藏相册

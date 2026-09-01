@@ -14,18 +14,9 @@ export interface DiaryItem {
 // 示例日记数据
 const diaryData: DiaryItem[] = [
   {
-    "id": 1,
-    "content": "The falling speed of cherry blossoms is five centimeters per second!",
-    "date": "2025-01-15T10:30:00Z",
-    "images": [
-      "/images/diary/sakura.jpg",
-      "/images/diary/1.webp"
-    ]
-  },
-  {
     "id": 1788063782764,
     "content": "今日清空万里，\n无事发生。",
-    "date": "2026-08-19T04:22:00.000Z",
+    "date": "2026-08-18T04:22:00.000Z",
     "location": "淮北市",
     "mood": "一般般",
     "tags": [

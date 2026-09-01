@@ -24,25 +24,26 @@ export const projectsData: Project[] = [
     "id": "mizuki",
     "title": "Mizuki",
     "description": "A next-gen Material Design 3 blog theme built with Astro, featuring i18n, dark mode, and responsive design.",
-    "image": "/assets/projects/mizuki.webp",
     "category": "web",
+    "status": "completed",
+    "startDate": "2026-09-01",
+    "endDate": "2026-09-01",
     "techStack": [
       "Astro",
       "TypeScript",
       "Tailwind CSS",
       "Svelte"
     ],
-    "status": "completed",
-    "sourceCode": "https://github.com/LyraVoid/Mizuki",
-    "visitUrl": "https://mizuki.mysqil.com",
-    "startDate": "2024-01-01",
-    "endDate": "2024-06-01",
-    "featured": true,
     "tags": [
       "Blog",
       "Theme",
       "Open Source"
-    ]
+    ],
+    "image": "/assets/projects/mizuki.webp",
+    "visitUrl": "https://mizuki.mysqil.com",
+    "sourceCode": "https://github.com/LyraVoid/Mizuki",
+    "featured": true,
+    "showImage": true
   },
   {
     "id": "my-mizuki",
@@ -60,7 +61,7 @@ export const projectsData: Project[] = [
     "tags": [
       "开源，博客"
     ],
-    "image": "https://kong-springboot1.oss-cn-beijing.aliyuncs.com/21233815-c0e4-4a9c-b6a5-8995717d913e.jpg",
+    "image": "https://res.cloudinary.com/wmu4lce4/image/upload/v1788249252/boke/jrhur1qn1xu4cbjx3qg7.png",
     "visitUrl": "https://01.klt.ccwu.cc/",
     "sourceCode": "",
     "featured": false,
