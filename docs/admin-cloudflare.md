@@ -7,7 +7,7 @@ SESSION_SECRET       至少 32 位随机字符串
 GITHUB_TOKEN         具备目标仓库 Contents: Read and write 权限的 Fine-grained token
 ```
 
-后台账号固定为 `s0xu`，密码只以 PBKDF2-SHA256 哈希保存在服务端函数中，不会发送到浏览器或以明文提交。GitHub 仓库默认为 `chuanK6/my-Mizuki` 的 `master` 分支，也可通过 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHUB_BRANCH` 覆盖。GitHub Token 只配置在 Cloudflare Secrets，不能写入前端代码。
+后台账号固定为 `s0xu`，密码只以 PBKDF2-SHA256 哈希保存在服务端函数中，不会发送到浏览器或以明文提交。Cloudflare Web Crypto 要求 PBKDF2 迭代次数不超过 `100000`，因此自定义哈希也必须使用 `100000` 次。GitHub 仓库默认为 `chuanK6/my-Mizuki` 的 `master` 分支，也可通过 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHUB_BRANCH` 覆盖。GitHub Token 只配置在 Cloudflare Secrets，不能写入前端代码。
 
 部署完成后访问 `/admin/` 登录。保存操作会提交到 GitHub 的 `master` 分支并触发 Pages 自动构建，网站更新需要等待构建完成。
 

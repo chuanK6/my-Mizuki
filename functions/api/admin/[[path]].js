@@ -1,6 +1,6 @@
 const encoder = new TextEncoder();
 const DEFAULT_ADMIN_USERNAME = "s0xu";
-const DEFAULT_ADMIN_PASSWORD_HASH = "pbkdf2$210000$dIYxX6CiNL4DGNmTHy0BpA==$f+MovA3KRD7n/HLlT/l3LQ7oe9TeHQ2ugFH+KRmJSQ8=";
+const DEFAULT_ADMIN_PASSWORD_HASH = "pbkdf2$100000$C7swkKIj2URzTxVRlCFa+w==$L3mbpyVRwv3qoHBaupAMV7URl9fioA1HhyE+fEGPCRU=";
 
 function json(data, status = 200, headers = {}) {
 	return new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json; charset=utf-8", ...headers } });
@@ -43,7 +43,7 @@ async function verifyPassword(password, encoded) {
 	const [kind, iterationsText, saltText, expected] = String(encoded || "").split("$");
 	if (kind !== "pbkdf2" || !iterationsText || !saltText || !expected) return false;
 	const iterations = Number(iterationsText);
-	if (!Number.isInteger(iterations) || iterations < 100000 || iterations > 1000000) return false;
+	if (!Number.isInteger(iterations) || iterations < 100000 || iterations > 100000) return false;
 	const salt = Uint8Array.from(atob(saltText), (char) => char.charCodeAt(0));
 	const key = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveBits"]);
 	const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations, hash: "SHA-256" }, key, 256);
