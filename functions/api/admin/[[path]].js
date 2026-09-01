@@ -23,9 +23,14 @@ function base64(bytes) {
 }
 
 function fromBase64(value) {
-	const text = atob(value.replace(/\s/g, ""));
+	const text = atob(normalizeBase64(value));
 	const bytes = Uint8Array.from(text, (char) => char.charCodeAt(0));
 	return new TextDecoder().decode(bytes);
+}
+
+function normalizeBase64(value) {
+	const normalized = String(value || "").replaceAll("-", "+").replaceAll("_", "/").replace(/\s/g, "");
+	return normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
 }
 
 function timingSafeEqual(a, b) {
@@ -59,8 +64,7 @@ async function signSession(payload, secret) {
 
 async function verifySignature(body, signature, secret) {
 	const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
-	const normalized = signature.replaceAll("-", "+").replaceAll("_", "/") + "==";
-	const bytes = Uint8Array.from(atob(normalized), (char) => char.charCodeAt(0));
+	const bytes = Uint8Array.from(atob(normalizeBase64(signature)), (char) => char.charCodeAt(0));
 	return crypto.subtle.verify("HMAC", key, bytes, encoder.encode(body));
 }
 
@@ -70,7 +74,7 @@ async function validSession(request, env) {
 	const [body, signature] = token.split(".");
 	if (!body || !signature) return false;
 	try {
-		const decoded = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(body.replaceAll("-", "+").replaceAll("_", "/") + "=="), (c) => c.charCodeAt(0))));
+		const decoded = JSON.parse(fromBase64(body));
 		return decoded.exp > Date.now() && await verifySignature(body, signature, envValue(env, "SESSION_SECRET"));
 	} catch {
 		return false;
@@ -179,10 +183,10 @@ export async function onRequest(context) {
 			const body = await request.json();
 			if (String(body.username || "") !== configuredValue(env, "ADMIN_USERNAME", DEFAULT_ADMIN_USERNAME) || !(await verifyPassword(String(body.password || ""), configuredValue(env, "ADMIN_PASSWORD_HASH", DEFAULT_ADMIN_PASSWORD_HASH)))) return json({ error: "账号或密码错误" }, 401);
 			const token = await signSession({ sub: body.username }, envValue(env, "SESSION_SECRET"));
-			return json({ ok: true }, 200, { "set-cookie": `mizuki_admin=${token}; Path=/; Max-Age=86400; HttpOnly; Secure; SameSite=Strict` });
+			return json({ ok: true }, 200, { "cache-control": "no-store", "set-cookie": `mizuki_admin=${token}; Path=/; Max-Age=86400; HttpOnly; Secure; SameSite=Strict` });
 		}
 		if (action === "logout") return json({ ok: true }, 200, { "set-cookie": "mizuki_admin=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict" });
-		if (action === "session") return json({ authenticated: await validSession(request, env) });
+		if (action === "session") return json({ authenticated: await validSession(request, env) }, 200, { "cache-control": "no-store" });
 		if (!(await validSession(request, env))) return json({ error: "未登录" }, 401);
 		if (request.method === "GET" && action === "posts") return json({ posts: (await listPosts(env)).map((post) => ({ ...post, title: post.id, published: "", draft: false, pinned: false, encrypted: false })) });
 		if (action === "post") {

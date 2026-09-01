@@ -54,8 +54,7 @@ src/data/bilibili-data.json
 # Lighthouse CI
 .lighthouseci/
 
-# Local-only article administration (never deploy or commit)
-/local-admin/
+# The visual admin is deployed to /admin and protected by the Pages Function.
 /scripts/admin-vite-plugin.mjs
 
 # Live2D editor source files
