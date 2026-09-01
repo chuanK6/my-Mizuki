@@ -140,7 +140,8 @@ function stringifyPost(data, content) {
 	const lines = ["---"];
 	for (const [key, value] of Object.entries(data)) {
 		if (value === undefined || value === "") continue;
-		lines.push(`${key}: ${typeof value === "string" ? JSON.stringify(value) : JSON.stringify(value)}`);
+		if ((key === "published" || key === "updated") && /^\d{4}-\d{2}-\d{2}$/u.test(String(value))) lines.push(`${key}: ${value}`);
+		else lines.push(`${key}: ${JSON.stringify(value)}`);
 	}
 	lines.push("---", "", content || "");
 	return lines.join("\n");
@@ -172,7 +173,17 @@ function contentPath(value) {
 async function listPosts(env) {
 	const config = githubConfig(env);
 	const tree = await githubRequest(env, `/git/trees/${encodeURIComponent(config.branch)}?recursive=1`);
-	return (tree.tree || []).filter((entry) => entry.type === "blob" && /^src\/content\/posts\/.*\.(?:md|mdx)$/u.test(entry.path)).map((entry) => ({ id: entry.path.slice("src/content/posts/".length), sha: entry.sha }));
+	const entries = (tree.tree || []).filter((entry) => entry.type === "blob" && /^src\/content\/posts\/.*\.(?:md|mdx)$/u.test(entry.path));
+	return Promise.all(entries.map(async (entry) => {
+		const id = entry.path.slice("src/content/posts/".length);
+		try {
+			const source = (await readFile(env, entry.path)).content;
+			const parsed = parsePost(source).data;
+			return { id, sha: entry.sha, title: String(parsed.title || id.replace(/\.(?:md|mdx)$/iu, "")), published: parsed.published || "", draft: parsed.draft === true, pinned: parsed.pinned === true, encrypted: parsed.encrypted === true && Boolean(parsed.password) };
+		} catch {
+			return { id, sha: entry.sha, title: id.replace(/\.(?:md|mdx)$/iu, ""), published: "", draft: false, pinned: false, encrypted: false };
+		}
+	}));
 }
 
 export async function onRequest(context) {
@@ -188,7 +199,7 @@ export async function onRequest(context) {
 		if (action === "logout") return json({ ok: true }, 200, { "set-cookie": "mizuki_admin=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict" });
 		if (action === "session") return json({ authenticated: await validSession(request, env) }, 200, { "cache-control": "no-store" });
 		if (!(await validSession(request, env))) return json({ error: "未登录" }, 401);
-		if (request.method === "GET" && action === "posts") return json({ posts: (await listPosts(env)).map((post) => ({ ...post, title: post.id, published: "", draft: false, pinned: false, encrypted: false })) });
+		if (request.method === "GET" && action === "posts") return json({ posts: await listPosts(env) });
 		if (action === "post") {
 			if (request.method === "GET") { const id = safePath(new URL(request.url).searchParams.get("id")); const file = await readFile(env, `src/content/posts/${id}`); const parsed = parsePost(file.content); return json({ id, data: parsed.data, content: parsed.content }); }
 			if (request.method === "POST") { const body = await request.json(); const id = safePath(body.id || body.originalId); const path = `src/content/posts/${id.endsWith(".md") || id.endsWith(".mdx") ? id : `${id}.md`}`; const result = await commitFile(env, path, stringifyPost(body.data || {}, String(body.content || "")), `在线更新 ${path}`); return json({ ok: true, id: path.slice("src/content/posts/".length), result }); }
