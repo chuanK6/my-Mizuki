@@ -82,7 +82,7 @@ async function validSession(request, env) {
 }
 
 function githubConfig(env) {
-	return { token: envValue(env, "GITHUB_TOKEN"), owner: env.GITHUB_OWNER || "chuanK6", repo: env.GITHUB_REPO || "my-Mizuki", branch: env.GITHUB_BRANCH || "master" };
+	return { token: envValue(env, "GITHUB_TOKEN"), owner: env.GITHUB_OWNER || "chuanK6", repo: env.GITHUB_REPO || "my-Mizuki", branch: env.GITHUB_BRANCH || "master", editBranch: env.GITHUB_EDIT_BRANCH || "content-draft" };
 }
 
 async function githubRequest(env, endpoint, options = {}) {
@@ -92,22 +92,34 @@ async function githubRequest(env, endpoint, options = {}) {
 	return response.status === 204 ? null : response.json();
 }
 
-async function readFile(env, filePath) {
+async function ensureEditBranch(env) {
 	const config = githubConfig(env);
-	const result = await githubRequest(env, `/contents/${filePath}?ref=${encodeURIComponent(config.branch)}`);
+	try { await githubRequest(env, `/git/ref/heads/${encodeURIComponent(config.editBranch)}`); return config.editBranch; } catch (error) {
+		const base = await githubRequest(env, `/git/ref/heads/${encodeURIComponent(config.branch)}`);
+		await githubRequest(env, "/git/refs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ref: `refs/heads/${config.editBranch}`, sha: base.object.sha }) });
+		return config.editBranch;
+	}
+}
+
+async function readFile(env, filePath, branchOverride) {
+	const config = githubConfig(env);
+	const branch = branchOverride || config.editBranch;
+	const result = await githubRequest(env, `/contents/${filePath}?ref=${encodeURIComponent(branch)}`);
 	return { sha: result.sha, content: fromBase64(result.content) };
 }
 
 async function commitFile(env, filePath, content, message, sha) {
 	const config = githubConfig(env);
-	const current = sha ? { sha } : await readFile(env, filePath).catch(() => null);
-	return githubRequest(env, `/contents/${filePath}`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: message || `在线更新 ${filePath}`, content: base64(encoder.encode(content)), branch: config.branch, ...(current?.sha ? { sha: current.sha } : {}) }) });
+	const branch = await ensureEditBranch(env);
+	const current = sha ? { sha } : await readFile(env, filePath, branch).catch(() => null);
+	return githubRequest(env, `/contents/${filePath}`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: message || `在线更新 ${filePath}`, content: base64(encoder.encode(content)), branch, ...(current?.sha ? { sha: current.sha } : {}) }) });
 }
 
 async function deleteFile(env, filePath, message) {
 	const config = githubConfig(env);
-	const current = await readFile(env, filePath);
-	return githubRequest(env, `/contents/${filePath}`, { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: message || `在线删除 ${filePath}`, sha: current.sha, branch: config.branch }) });
+	const branch = await ensureEditBranch(env);
+	const current = await readFile(env, filePath, branch);
+	return githubRequest(env, `/contents/${filePath}`, { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: message || `在线删除 ${filePath}`, sha: current.sha, branch }) });
 }
 
 function parseDataArray(source, marker) {
@@ -172,12 +184,12 @@ function contentPath(value) {
 
 async function listPosts(env) {
 	const config = githubConfig(env);
-	const tree = await githubRequest(env, `/git/trees/${encodeURIComponent(config.branch)}?recursive=1`);
+	const tree = await githubRequest(env, `/git/trees/${encodeURIComponent(config.editBranch)}?recursive=1`).catch(() => githubRequest(env, `/git/trees/${encodeURIComponent(config.branch)}?recursive=1`));
 	const entries = (tree.tree || []).filter((entry) => entry.type === "blob" && /^src\/content\/posts\/.*\.(?:md|mdx)$/u.test(entry.path));
 	return Promise.all(entries.map(async (entry) => {
 		const id = entry.path.slice("src/content/posts/".length);
 		try {
-			const source = (await readFile(env, entry.path)).content;
+			const source = (await readFile(env, entry.path, config.editBranch).catch(() => readFile(env, entry.path, config.branch))).content;
 			const parsed = parsePost(source).data;
 			return { id, sha: entry.sha, title: String(parsed.title || id.replace(/\.(?:md|mdx)$/iu, "")), published: parsed.published || "", draft: parsed.draft === true, pinned: parsed.pinned === true, encrypted: parsed.encrypted === true && Boolean(parsed.password) };
 		} catch {
@@ -194,11 +206,17 @@ export async function onRequest(context) {
 			const body = await request.json();
 			if (String(body.username || "") !== configuredValue(env, "ADMIN_USERNAME", DEFAULT_ADMIN_USERNAME) || !(await verifyPassword(String(body.password || ""), configuredValue(env, "ADMIN_PASSWORD_HASH", DEFAULT_ADMIN_PASSWORD_HASH)))) return json({ error: "账号或密码错误" }, 401);
 			const token = await signSession({ sub: body.username }, envValue(env, "SESSION_SECRET"));
-			return json({ ok: true }, 200, { "cache-control": "no-store", "set-cookie": `mizuki_admin=${token}; Path=/; Max-Age=86400; HttpOnly; Secure; SameSite=Strict` });
+			return json({ ok: true }, 200, { "cache-control": "no-store", "set-cookie": `mizuki_admin=${token}; Path=/; HttpOnly; Secure; SameSite=Strict` });
 		}
 		if (action === "logout") return json({ ok: true }, 200, { "set-cookie": "mizuki_admin=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict" });
 		if (action === "session") return json({ authenticated: await validSession(request, env) }, 200, { "cache-control": "no-store" });
 		if (!(await validSession(request, env))) return json({ error: "未登录" }, 401);
+		if (request.method === "POST" && action === "deploy") {
+			const config = githubConfig(env);
+			await ensureEditBranch(env);
+			const result = await githubRequest(env, "/merges", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ base: config.branch, head: config.editBranch, commit_message: "发布在线编辑内容" }) });
+			return json({ ok: true, deployed: result?.merged === true, message: result?.message || "已提交部署" });
+		}
 		if (request.method === "GET" && action === "posts") return json({ posts: await listPosts(env) });
 		if (action === "post") {
 			if (request.method === "GET") { const id = safePath(new URL(request.url).searchParams.get("id")); const file = await readFile(env, `src/content/posts/${id}`); const parsed = parsePost(file.content); return json({ id, data: parsed.data, content: parsed.content }); }
@@ -216,16 +234,24 @@ export async function onRequest(context) {
 			const filePath = "src/data/projects.ts";
 			if (request.method === "GET") return json({ items: (await readDataFile(env, filePath, "export const projectsData: Project[]")).items });
 			const data = await readDataFile(env, filePath, "export const projectsData: Project[]");
-			if (request.method === "POST") { const body = await request.json(); const item = body.item || {}; if (!item.id) throw new Error("项目 ID 不能为空"); const items = [...data.items]; const normalized = { ...item, id: String(item.id) }; const index = items.findIndex((entry) => entry.id === normalized.id); if (index >= 0) items[index] = normalized; else items.push(normalized); return json({ ok: true, item: normalized, result: await writeDataFile(env, filePath, "export const projectsData: Project[]", items, "在线更新项目") }); }
+			if (request.method === "POST") { const body = await request.json(); const item = body.item || {}; if (!item.id) throw new Error("项目 ID 不能为空"); const statusMap = { "已完成": "completed", "进行中": "in-progress", "计划中": "planned" }; const items = [...data.items]; const normalized = { ...item, id: String(item.id), status: statusMap[item.status] || item.status || "planned" }; const index = items.findIndex((entry) => entry.id === normalized.id); if (index >= 0) items[index] = normalized; else items.push(normalized); return json({ ok: true, item: normalized, result: await writeDataFile(env, filePath, "export const projectsData: Project[]", items, "在线更新项目") }); }
 			if (request.method === "DELETE") { const body = await request.json(); const items = data.items.filter((entry) => entry.id !== body.id); return json({ ok: true, result: await writeDataFile(env, filePath, "export const projectsData: Project[]", items, "在线删除项目") }); }
 		}
 		if (request.method === "GET" && action === "albums") {
 			const config = githubConfig(env);
-			const result = await githubRequest(env, `/contents/public/images/albums?ref=${encodeURIComponent(config.branch)}`);
+			const branch = config.editBranch;
+			const result = await githubRequest(env, `/contents/public/images/albums?ref=${encodeURIComponent(branch)}`).catch(() => githubRequest(env, `/contents/public/images/albums?ref=${encodeURIComponent(config.branch)}`));
 			const albums = [];
 			for (const entry of (result || []).filter((item) => item.type === "dir")) {
 				const path = `public/images/albums/${entry.name}/info.json`;
-				try { const file = await readFile(env, path); albums.push({ id: entry.name, ...JSON.parse(file.content), sha: file.sha, path }); } catch { albums.push({ id: entry.name, path }); }
+				try {
+					const file = await readFile(env, path, branch).catch(() => readFile(env, path, config.branch));
+					const data = JSON.parse(file.content);
+					const files = await githubRequest(env, `/contents/public/images/albums/${entry.name}?ref=${encodeURIComponent(branch)}`).catch(() => githubRequest(env, `/contents/public/images/albums/${entry.name}?ref=${encodeURIComponent(config.branch)}`).catch(() => []));
+					const localImages = (files || []).filter((item) => item.type === "file" && /\.(?:jpg|jpeg|png|gif|webp|avif|bmp|tiff|tif|svg)$/iu.test(item.name)).map((item) => ({ name: item.name, url: item.download_url, cover: /^cover\./iu.test(item.name) }));
+					const images = [...localImages, ...(Array.isArray(data.images) ? data.images : [])];
+					albums.push({ id: entry.name, ...data, sha: file.sha, path, imageCount: images.length, images });
+				} catch { albums.push({ id: entry.name, path, imageCount: 0, images: [] }); }
 			}
 			return json({ items: albums });
 		}
