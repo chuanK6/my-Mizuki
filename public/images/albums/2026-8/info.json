@@ -10,5 +10,14 @@
   "hidden": false,
   "password": "",
   "passwordHint": "",
-  "images": []
+  "images": [
+    {
+      "id": "boke/ienrxgrdfmttt4s5pyui",
+      "name": "lGSjvGxaFxyEPEW",
+      "publicId": "boke/ienrxgrdfmttt4s5pyui",
+      "deleteToken": "",
+      "url": "https://res.cloudinary.com/wmu4lce4/image/upload/v1788273434/boke/ienrxgrdfmttt4s5pyui.jpg",
+      "cover": false
+    }
+  ]
 }
