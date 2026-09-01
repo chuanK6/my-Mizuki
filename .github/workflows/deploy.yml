@@ -1,11 +1,14 @@
-name: Deploy to Pages Branch and Cloudflare
+name: Deploy to Pages Branch
 
 on:
+  # 每次推送到 `master` 分支时触发
   push:
-    branches: [ master ]
+    branches: [master]
 
+  # 允许在 GitHub Actions 页面手动触发
   workflow_dispatch:
 
+# 需要写入权限来推送到 pages 分支
 permissions:
   contents: write
 
@@ -14,43 +17,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 检出仓库
       - name: Checkout your repository using git
         uses: actions/checkout@v4
         with:
           submodules: true
+          # 支持 Git Submodule 模式
           token: ${{ secrets.GITHUB_TOKEN }}
+          # 自动访问同账号下的私有仓库
 
+      # 设置 Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "20"
 
+      # 设置 pnpm
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           run_install: false
 
+      # 安装依赖
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
+      # 构建网站
       - name: Build site
         run: pnpm run build
+        env:
+          # 如果需要启用内容分离，取消以下注释并配置
+          # ENABLE_CONTENT_SYNC: true
+          # CONTENT_REPO_URL: ${{ secrets.CONTENT_REPO_URL }}
+          # USE_SUBMODULE: true
 
-      # 部署到 GitHub Pages 分支
+      # 部署到 pages 分支
       - name: Deploy to pages branch
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: pages
+          # 部署到 pages 分支
           folder: dist
+          # Astro 默认构建输出目录
           clean: true
-
-      # 安装最新 Wrangler
-      - name: Install Wrangler
-        run: npm install --global wrangler@latest
-
-      # 部署到 Cloudflare Pages
-      - name: Deploy to Cloudflare Pages
-        run: wrangler pages deploy dist --project-name=game123123123
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # 清理目标分支中的旧文件
