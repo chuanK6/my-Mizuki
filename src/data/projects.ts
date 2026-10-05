@@ -61,11 +61,12 @@ export const projectsData: Project[] = [
     "tags": [
       "开源，博客"
     ],
-    "image": "https://res.cloudinary.com/wmu4lce4/image/upload/v1788249252/boke/jrhur1qn1xu4cbjx3qg7.png",
+    "image": "https://res.cloudinary.com/wmu4lce4/image/upload/v1791202831/boke/b1bmmesctcvjyebonsvb.png",
     "visitUrl": "https://01.klt.ccwu.cc/",
     "sourceCode": "",
     "featured": false,
-    "showImage": true
+    "showImage": true,
+    "updated": "2026-10-05T12:22:22.811Z"
   }
 ];
 
