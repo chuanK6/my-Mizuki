@@ -155,7 +155,7 @@ function stringifyPost(data, content) {
 		if ((key === "published" || key === "updated") && /^\d{4}-\d{2}-\d{2}$/u.test(String(value))) lines.push(`${key}: ${value}`);
 		else lines.push(`${key}: ${JSON.stringify(value)}`);
 	}
-	lines.push("---", "", content || "");
+	lines.push("---", content || "");
 	return lines.join("\n");
 }
 
@@ -191,9 +191,9 @@ async function listPosts(env) {
 		try {
 			const source = (await readFile(env, entry.path, config.editBranch).catch(() => readFile(env, entry.path, config.branch))).content;
 			const parsed = parsePost(source).data;
-			return { id, sha: entry.sha, title: String(parsed.title || id.replace(/\.(?:md|mdx)$/iu, "")), published: parsed.published || "", draft: parsed.draft === true, pinned: parsed.pinned === true, encrypted: parsed.encrypted === true && Boolean(parsed.password) };
+			return { id, sha: entry.sha, title: String(parsed.title || id.replace(/\.(?:md|mdx)$/iu, "")), published: parsed.published || "", updated: parsed.updated || "", draft: parsed.draft === true, pinned: parsed.pinned === true, encrypted: parsed.encrypted === true && Boolean(parsed.password) };
 		} catch {
-			return { id, sha: entry.sha, title: id.replace(/\.(?:md|mdx)$/iu, ""), published: "", draft: false, pinned: false, encrypted: false };
+			return { id, sha: entry.sha, title: id.replace(/\.(?:md|mdx)$/iu, ""), published: "", updated: "", draft: false, pinned: false, encrypted: false };
 		}
 	}));
 }
@@ -227,14 +227,14 @@ export async function onRequest(context) {
 			const filePath = "src/data/diary.ts";
 			if (request.method === "GET") return json({ items: (await readDataFile(env, filePath, "const diaryData: DiaryItem[]")).items });
 			const data = await readDataFile(env, filePath, "const diaryData: DiaryItem[]");
-			if (request.method === "POST") { const body = await request.json(); const item = body.item || {}; const normalized = { ...item, id: Number(item.id) || Date.now(), content: String(item.content || ""), date: String(item.date || new Date().toISOString()), tags: Array.isArray(item.tags) ? item.tags : [], images: Array.isArray(item.images) ? item.images : [] }; const items = [...data.items]; const index = items.findIndex((entry) => String(entry.id) === String(normalized.id)); if (index >= 0) items[index] = normalized; else items.push(normalized); return json({ ok: true, item: normalized, result: await writeDataFile(env, filePath, "const diaryData: DiaryItem[]", items, "在线更新日记") }); }
+			if (request.method === "POST") { const body = await request.json(); const item = body.item || {}; const normalized = { ...item, updated: new Date().toISOString(), id: Number(item.id) || Date.now(), content: String(item.content || ""), date: String(item.date || new Date().toISOString()), tags: Array.isArray(item.tags) ? item.tags : [], images: Array.isArray(item.images) ? item.images : [] }; const items = [...data.items]; const index = items.findIndex((entry) => String(entry.id) === String(normalized.id)); if (index >= 0) items[index] = normalized; else items.push(normalized); return json({ ok: true, item: normalized, result: await writeDataFile(env, filePath, "const diaryData: DiaryItem[]", items, "在线更新日记") }); }
 			if (request.method === "DELETE") { const body = await request.json(); const items = data.items.filter((entry) => String(entry.id) !== String(body.id)); return json({ ok: true, result: await writeDataFile(env, filePath, "const diaryData: DiaryItem[]", items, "在线删除日记") }); }
 		}
 		if (action === "projects") {
 			const filePath = "src/data/projects.ts";
 			if (request.method === "GET") return json({ items: (await readDataFile(env, filePath, "export const projectsData: Project[]")).items });
 			const data = await readDataFile(env, filePath, "export const projectsData: Project[]");
-			if (request.method === "POST") { const body = await request.json(); const item = body.item || {}; if (!item.id) throw new Error("项目 ID 不能为空"); const statusMap = { "已完成": "completed", "进行中": "in-progress", "计划中": "planned" }; const items = [...data.items]; const normalized = { ...item, id: String(item.id), status: statusMap[item.status] || item.status || "planned" }; const index = items.findIndex((entry) => entry.id === normalized.id); if (index >= 0) items[index] = normalized; else items.push(normalized); return json({ ok: true, item: normalized, result: await writeDataFile(env, filePath, "export const projectsData: Project[]", items, "在线更新项目") }); }
+			if (request.method === "POST") { const body = await request.json(); const item = body.item || {}; if (!item.id) throw new Error("项目 ID 不能为空"); const statusMap = { "已完成": "completed", "进行中": "in-progress", "计划中": "planned" }; const items = [...data.items]; const normalized = { ...item, updated: new Date().toISOString(), id: String(item.id), status: statusMap[item.status] || item.status || "planned" }; const index = items.findIndex((entry) => entry.id === normalized.id); if (index >= 0) items[index] = normalized; else items.push(normalized); return json({ ok: true, item: normalized, result: await writeDataFile(env, filePath, "export const projectsData: Project[]", items, "在线更新项目") }); }
 			if (request.method === "DELETE") { const body = await request.json(); const items = data.items.filter((entry) => entry.id !== body.id); return json({ ok: true, result: await writeDataFile(env, filePath, "export const projectsData: Project[]", items, "在线删除项目") }); }
 		}
 		if (request.method === "GET" && action === "albums") {
@@ -259,17 +259,17 @@ export async function onRequest(context) {
 			const body = await request.json(); const item = body.item || {}; const id = safePath(item.id); if (!/^[\w-]+$/u.test(id)) throw new Error("相册目录 ID 无效");
 			const path = `public/images/albums/${id}/info.json`; let existing = {};
 			try { existing = JSON.parse((await readFile(env, path)).content); } catch {}
-			const info = { ...existing, mode: item.mode === "external" ? "external" : "local", title: String(item.title || id), description: String(item.description || ""), date: String(item.date || new Date().toISOString().slice(0, 10)), location: String(item.location || ""), tags: Array.isArray(item.tags) ? item.tags : [], hidden: item.hidden === true, password: String(item.password || ""), passwordHint: String(item.passwordHint || ""), ...(item.mode === "external" ? { cover: String(item.cover || ""), photos: Array.isArray(item.photos) ? item.photos : [] } : { ...(existing.cover ? { cover: existing.cover } : {}), ...(Array.isArray(existing.images) ? { images: existing.images } : {}) }) };
+			const info = { ...existing, updated: new Date().toISOString(), mode: item.mode === "external" ? "external" : "local", title: String(item.title || id), description: String(item.description || ""), date: String(item.date || new Date().toISOString().slice(0, 10)), location: String(item.location || ""), tags: Array.isArray(item.tags) ? item.tags : [], hidden: item.hidden === true, password: String(item.password || ""), passwordHint: String(item.passwordHint || ""), ...(item.mode === "external" ? { cover: String(item.cover || ""), photos: Array.isArray(item.photos) ? item.photos : [] } : { ...(existing.cover ? { cover: existing.cover } : {}), ...(Array.isArray(existing.images) ? { images: existing.images } : {}) }) };
 			const current = await readFile(env, path).catch(() => null); const result = await commitFile(env, path, JSON.stringify(info, null, 2), `在线更新相册 ${id}`, current?.sha); return json({ ok: true, item: { id, ...info }, result });
 		}
 		if (action === "albums" && request.method === "DELETE") {
 			const body = await request.json(); const id = safePath(body.id); const path = `public/images/albums/${id}/info.json`; return json({ ok: true, result: await deleteFile(env, path, `在线删除相册 ${id}`) });
 		}
 		if (action === "album-image" && request.method === "POST") {
-			const body = await request.json(); const id = safePath(body.albumId); const path = `public/images/albums/${id}/info.json`; const file = await readFile(env, path); const info = JSON.parse(file.content); const images = Array.isArray(info.images) ? info.images : []; const image = { id: String(body.id || body.publicId || body.url), name: String(body.name || body.publicId || "image"), publicId: body.publicId || "", deleteToken: body.deleteToken || "", url: String(body.url || ""), cover: body.cover === true }; if (!image.url) throw new Error("图片地址不能为空"); if (image.cover) { for (const old of images) old.cover = false; info.cover = image.url; } const index = images.findIndex((old) => old.id === image.id || old.publicId === image.publicId || old.url === image.url); if (index >= 0) images[index] = { ...images[index], ...image }; else images.push(image); info.images = images; const result = await commitFile(env, path, JSON.stringify(info, null, 2), `在线更新相册图片 ${id}`, file.sha); return json({ ok: true, url: image.url, result });
+			const body = await request.json(); const id = safePath(body.albumId); const path = `public/images/albums/${id}/info.json`; const file = await readFile(env, path); const info = JSON.parse(file.content); const images = Array.isArray(info.images) ? info.images : []; const image = { id: String(body.id || body.publicId || body.url), name: String(body.name || body.publicId || "image"), publicId: body.publicId || "", deleteToken: body.deleteToken || "", url: String(body.url || ""), cover: body.cover === true }; if (!image.url) throw new Error("图片地址不能为空"); if (image.cover) { for (const old of images) old.cover = false; info.cover = image.url; } const index = images.findIndex((old) => old.id === image.id || old.publicId === image.publicId || old.url === image.url); if (index >= 0) images[index] = { ...images[index], ...image }; else images.push(image); info.images = images; info.updated = new Date().toISOString(); const result = await commitFile(env, path, JSON.stringify(info, null, 2), `在线更新相册图片 ${id}`, file.sha); return json({ ok: true, url: image.url, result });
 		}
 		if (action === "album-image" && request.method === "DELETE") {
-			const body = await request.json(); const id = safePath(body.albumId); const path = `public/images/albums/${id}/info.json`; const file = await readFile(env, path); const info = JSON.parse(file.content); const images = Array.isArray(info.images) ? info.images : []; const next = images.filter((image) => image.name !== body.name && image.id !== body.name && image.publicId !== body.name && image.url !== body.name); if (next.length === images.length) throw new Error("图片不存在"); if (images.length !== next.length && images.find((image) => image.name === body.name && image.cover)) delete info.cover; info.images = next; const result = await commitFile(env, path, JSON.stringify(info, null, 2), `在线删除相册图片 ${id}`, file.sha); return json({ ok: true, result });
+			const body = await request.json(); const id = safePath(body.albumId); const path = `public/images/albums/${id}/info.json`; const file = await readFile(env, path); const info = JSON.parse(file.content); const images = Array.isArray(info.images) ? info.images : []; const next = images.filter((image) => image.name !== body.name && image.id !== body.name && image.publicId !== body.name && image.url !== body.name); if (next.length === images.length) throw new Error("图片不存在"); if (images.length !== next.length && images.find((image) => image.name === body.name && image.cover)) delete info.cover; info.images = next; info.updated = new Date().toISOString(); const result = await commitFile(env, path, JSON.stringify(info, null, 2), `在线删除相册图片 ${id}`, file.sha); return json({ ok: true, result });
 		}
 		if (request.method === "GET" && action === "file") {
 			const path = contentPath(new URL(request.url).searchParams.get("path"));

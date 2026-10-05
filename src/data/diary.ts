@@ -5,6 +5,7 @@ export interface DiaryItem {
 	id: number;
 	content: string;
 	date: string;
+	updated?: string;
 	images?: string[];
 	location?: string;
 	mood?: string;

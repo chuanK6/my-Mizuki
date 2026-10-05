@@ -13,6 +13,7 @@ export interface Project {
 	sourceCode?: string;
 	visitUrl?: string;
 	startDate: string;
+	updated?: string;
 	endDate?: string;
 	featured?: boolean;
 	tags?: string[];
