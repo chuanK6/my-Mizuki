@@ -1,17 +1,15 @@
 ---
-title: 个人简历
+title: "个人简历"
 published: 2026-08-30
-description: 个人简历
-tags:
-  - 技术
-category: 简历
+description: "个人简历"
+tags: []
+category: "简历"
 draft: false
 pinned: true
-lang: zh-CN
+lang: "zh-CN"
 encrypted: false
-password: ''
-passwordHint: ''
 hideHomeContent: false
+updated: 2026-10-05
 ---
 # 👨‍💻 关于我
 
