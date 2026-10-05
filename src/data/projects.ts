@@ -62,11 +62,11 @@ export const projectsData: Project[] = [
       "开源，博客"
     ],
     "image": "https://res.cloudinary.com/wmu4lce4/image/upload/v1791202831/boke/b1bmmesctcvjyebonsvb.png",
-    "visitUrl": "https://01.klt.ccwu.cc/",
+    "visitUrl": "https://klt.ccwu.cc/",
     "sourceCode": "https://github.com/chuanK6/my-Mizuki",
     "featured": false,
     "showImage": true,
-    "updated": "2026-10-05T12:26:33.107Z"
+    "updated": "2026-10-05T12:29:03.515Z"
   },
   {
     "id": "game",
