@@ -62,11 +62,32 @@ export const projectsData: Project[] = [
     "tags": [
       "开源，博客"
     ],
-    "image": "https://res.cloudinary.com/wmu4lce4/image/upload/v1788249252/boke/jrhur1qn1xu4cbjx3qg7.png",
+    "image": "https://res.cloudinary.com/wmu4lce4/image/upload/v1791202831/boke/b1bmmesctcvjyebonsvb.png",
     "visitUrl": "https://01.klt.ccwu.cc/",
-    "sourceCode": "",
+    "sourceCode": "https://github.com/chuanK6/my-Mizuki",
     "featured": false,
-    "showImage": true
+    "showImage": true,
+    "updated": "2026-10-05T12:26:33.107Z"
+  },
+  {
+    "id": "game",
+    "title": "游浪-游戏网站",
+    "description": "简单的游戏资源发布网站",
+    "category": "web",
+    "status": "completed",
+    "startDate": "2026-09-01",
+    "techStack": [
+      "vue"
+    ],
+    "tags": [
+      "开源"
+    ],
+    "image": "https://res.cloudinary.com/wmu4lce4/image/upload/v1791203113/boke/x86oqn7vl2vcsfyngfma.png",
+    "visitUrl": "https://youlang.cc.cd/",
+    "sourceCode": "https://github.com/chuanK6/game",
+    "featured": false,
+    "showImage": true,
+    "updated": "2026-10-05T12:25:59.500Z"
   }
 ];
 
