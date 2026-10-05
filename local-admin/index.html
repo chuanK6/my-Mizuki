@@ -38,7 +38,7 @@
   <div class="workspace"><header class="topbar"><div class="breadcrumb"><span>内容管理</span><i data-lucide="chevron-right"></i><strong>文章</strong></div><div class="actions topbar-actions"><a class="btn website-link" href="/" target="_blank" rel="noopener noreferrer"><i data-lucide="external-link"></i>查看网站</a><button class="btn primary" id="deploy" type="button"><i data-lucide="rocket"></i><span>部署更新</span></button></div></header><main class="page"><aside class="post-panel"><div class="panel-head"><h2>文章列表</h2><button class="btn icon primary" id="new-post" title="新建文章"><i data-lucide="plus"></i></button></div><div class="search-wrap"><i data-lucide="search"></i><input aria-label="搜索文章" id="filter" placeholder="搜索标题或路径"></div><div class="list-tools"><label class="sort-label"><i data-lucide="arrow-down-wide-narrow"></i><select id="post-sort" aria-label="文章排序方式"><option value="recent">最近修改优先</option><option value="oldest">最早修改优先</option></select></label></div><div id="post-list"></div></aside>
   <article class="editor-page"><div class="editor-head"><div><h1 id="editor-title">新建文章</h1><p id="editor-subtitle">填写文章信息并编辑正文</p></div><div class="actions"><button class="btn danger" id="delete" disabled><i data-lucide="trash-2"></i>删除</button><button class="btn primary" id="save"><i data-lucide="save"></i>保存文章</button></div></div>
   <section class="form-section"><div class="section-title"><i data-lucide="info"></i>基础信息</div><div class="form-body grid"><label class="field"><span class="field-label">文件路径 <span class="required">*</span></span><input id="id" placeholder="例如 notes/hello（自动补全 .md）"></label><label class="field"><span class="field-label">标题 <span class="required">*</span></span><input id="title" placeholder="文章标题"></label><label class="field"><span class="field-label">发布日期 <span class="required">*</span></span><input id="published" type="date"></label><label class="field">更新时间<input id="updated" type="date"></label><label class="field">分类<input id="category" placeholder="例如 随笔"></label><label class="field">标签<input id="tags" placeholder="生活, 技术"></label><label class="field full">摘要<input id="description" placeholder="显示在文章列表中的摘要"></label></div></section>
-  <section class="form-section"><div class="section-title body-heading"><span><i data-lucide="pen-line"></i>文章正文</span><div class="editor-modes" role="group" aria-label="正文编辑模式"><button type="button" id="mode-rich" data-editor-mode="rich" class="active" aria-pressed="true">富文本</button><button type="button" id="mode-source" data-editor-mode="source" aria-pressed="false">Markdown / HTML</button><button type="button" id="mode-preview" data-editor-mode="preview" aria-pressed="false">预览</button></div></div><p class="editor-help" id="editor-help">可视化编辑正文，也可以切换到 Markdown / HTML 输入源码。</p><div id="editor"></div><div id="source-panel" class="hidden"><textarea id="source-editor" aria-label="Markdown / HTML 正文源码" spellcheck="false" placeholder="输入 Markdown 或 HTML，例如 &lt;div style=&quot;color: #5264db&quot;&gt;你好，世界&lt;/div&gt;"></textarea></div><iframe id="content-preview" class="hidden" title="文章正文预览" sandbox="" referrerpolicy="no-referrer"></iframe></section>
+  <section class="form-section"><div class="section-title body-heading"><span><i data-lucide="pen-line"></i>文章正文</span><div class="editor-modes" role="group" aria-label="正文编辑模式"><button type="button" id="mode-rich" data-editor-mode="rich" class="active" aria-pressed="true">富文本</button><button type="button" id="mode-source" data-editor-mode="source" aria-pressed="false">Markdown / HTML</button><button type="button" id="mode-preview" data-editor-mode="preview" aria-pressed="false">预览</button></div></div><p class="editor-help" id="editor-help">可视化编辑正文，也可以切换到 Markdown / HTML 输入源码。</p><div id="editor"></div><div id="source-panel" class="hidden"><textarea id="source-editor" aria-label="Markdown / HTML 正文源码" spellcheck="false" placeholder="输入 Markdown 或 HTML，例如 &lt;div style=&quot;color: #5264db&quot;&gt;你好，世界&lt;/div&gt;"></textarea></div><div id="preview-panel" class="hidden"><p id="preview-status" class="editor-help" role="status"></p><iframe id="content-preview" title="文章正文预览" sandbox="" referrerpolicy="no-referrer"></iframe></div></section>
   <section class="form-section"><div class="section-title"><i data-lucide="sliders-horizontal"></i>发布设置</div><div class="form-body switches"><label class="check"><input id="draft" type="checkbox">保存为草稿</label><label class="check"><input id="pinned" type="checkbox">置顶文章</label></div></section>
   <section class="form-section"><div class="section-title"><i data-lucide="shield-check"></i>访问保护</div><div class="form-body"><div class="switches"><label class="check"><input id="encrypted" type="checkbox">启用密码保护</label><label class="check"><input id="hideHomeContent" type="checkbox">隐藏首页文章摘要</label></div><div class="encrypt-fields hidden" id="encrypt-fields"><div class="grid"><label class="field"><span class="field-label">访问密码 <span class="required">*</span></span><span class="password-wrap"><input id="password" type="password" autocomplete="new-password" placeholder="读者打开文章时需要输入"><button id="toggle-password" type="button" title="显示或隐藏密码"><i data-lucide="eye"></i></button></span></label><label class="field">密码提示<input id="passwordHint" placeholder="例如：我的生日"></label></div></div></div></section><div class="save-note">编辑完成后保存内容；点击右上角「部署更新」发布到网站。</div><p id="status"></p></article>
   <section class="module-page" id="module-diary"><div class="module-grid"><div class="form-section module-list"><div class="panel-head"><h2>日记列表</h2><button class="btn icon primary" id="diary-new" title="新建日记"><i data-lucide="plus"></i></button></div><div class="list-tools"><label class="sort-label"><i data-lucide="arrow-down-wide-narrow"></i><select id="diary-sort" aria-label="日记排序方式"><option value="recent">最近修改优先</option><option value="oldest">最早修改优先</option></select></label></div><div id="diary-list"></div></div><article class="module-editor"><div class="module-header"><div><h1>日记管理</h1><p>管理网站日记页面中的动态记录。</p></div><div class="actions"><button class="btn danger" id="diary-delete" disabled><i data-lucide="trash-2"></i>删除</button><button class="btn primary" id="diary-save"><i data-lucide="save"></i>保存日记</button></div></div><div class="form-section"><div class="section-title"><i data-lucide="notebook-pen"></i>日记内容</div><div class="form-body grid"><label class="field">日期<input id="diary-date" type="datetime-local"></label><label class="field">地点<input id="diary-location" placeholder="例如：杭州"></label><label class="field">心情<input id="diary-mood" placeholder="例如：开心"></label><label class="field">标签<input id="diary-tags" placeholder="生活, 随笔"></label><label class="field full">图片地址<input id="diary-images" placeholder="多个地址用逗号分隔"></label><label class="field full">上传图片到 Cloudinary<input id="diary-upload" type="file" accept="image/*" multiple><small class="save-note">图片会上传到 Cloudinary 的 boke 目录。</small></label><label class="field full"><span class="field-label">内容 <span class="required">*</span></span><textarea id="diary-content" rows="9" placeholder="写下今天发生的事情..."></textarea></label></div></div></article></div></section>
@@ -59,13 +59,27 @@
     if (!$("project-upload")) { const input = document.createElement("input"); input.id = "project-upload"; input.type = "file"; input.accept = "image/*"; input.style.marginTop = "6px"; $("project-image")?.parentElement?.appendChild(input); }
     async function uploadToCloudinary(file) { const form = new FormData(); form.append("file", file); form.append("upload_preset", CLOUDINARY_PRESET); form.append("folder", CLOUDINARY_FOLDER); const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`, { method: "POST", body: form }); const result = await response.json(); if (!response.ok || !result.secure_url) throw new Error(result.error?.message || "Cloudinary 上传失败"); return result; }
     const editor = new toastui.Editor({ el: $("editor"), height: "560px", initialEditType: "wysiwyg", previewStyle: "vertical", language: "zh-CN", usageStatistics: false, hideModeSwitch: true, toolbarItems: [["heading", "bold", "italic", "strike"], ["hr", "quote"], ["ul", "ol", "task", "indent", "outdent"], ["table", "image", "link"], ["code", "codeblock"]], hooks: { addImageBlobHook: async (blob, callback) => { try { setStatus("正在上传图片到 Cloudinary..."); const result = await uploadToCloudinary(blob); callback(result.secure_url, blob.name || "文章图片"); setStatus("图片上传成功"); } catch (error) { setStatus(error.message || "图片上传失败", true); } } } });
-    // Keep the source authoritative: HTML must never round-trip through WYSIWYG.
+    // Keep the source authoritative until the user actually edits in WYSIWYG.
     let articleSource = "", editorMode = "rich", richDirty = false, syncingEditor = false;
     editor.on("change", () => { if (!syncingEditor) richDirty = true; });
-    function containsHtml(content) {
-      let found = false;
-      marked.walkTokens(marked.lexer(content), (token) => { if (token.type === "html") found = true; });
-      return found;
+    function requiresHtmlConversion(content) {
+      // Toast UI supports these tags natively; <br> and ordinary images must not lock the editor.
+      const supported = new Set(["br", "hr", "p", "h1", "h2", "h3", "h4", "h5", "h6", "strong", "b", "em", "i", "s", "del", "strike", "blockquote", "ul", "ol", "li", "pre", "code", "a", "img", "table", "thead", "tbody", "tr", "th", "td"]);
+      let conversion = false;
+      marked.walkTokens(marked.lexer(content), (token) => {
+        if (token.type !== "html") return;
+        const tags = token.raw.matchAll(/<\/?([a-z][\w-]*)([^>]*?)\/?>/gi);
+        if (/<!--|<!doctype|<\?/i.test(token.raw)) conversion = true;
+        for (const [, name, attributes] of tags) {
+          const tag = name.toLowerCase();
+          const allowed = tag === "img" ? ["src", "alt"] : tag === "a" ? ["href"] : [];
+          if (!supported.has(tag)) conversion = true;
+          for (const attr of attributes.matchAll(/([^\s=/'"]+)(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/g)) {
+            if (!allowed.includes(attr[1].toLowerCase())) conversion = true;
+          }
+        }
+      });
+      return conversion;
     }
     function getArticleContent() {
       if (editorMode === "source") return $("source-editor").value;
@@ -76,29 +90,51 @@
       try { editor.setMarkdown(content, false); } finally { syncingEditor = false; richDirty = false; }
     }
     function updateEditorHelp() {
-      const html = containsHtml(getArticleContent());
-      $("mode-rich").disabled = html;
-      $("mode-rich").title = html ? "含 HTML 的正文使用源码编辑，可完整保留标签与样式" : "可视化编辑";
+      const customHtml = requiresHtmlConversion(getArticleContent());
+      $("mode-rich").disabled = false;
+      $("mode-rich").title = "可视化编辑文字、图片和常用格式";
       $("editor-help").textContent = editorMode === "preview"
         ? "预览支持常规 Markdown 与 HTML；站点专用语法以发布效果为准。"
-        : html ? "已启用 HTML 源码编辑，保存时完整保留标签与样式。点击「预览」查看效果。"
+        : customHtml && editorMode === "source" ? "含自定义 HTML，可直接编辑源码；也可切换富文本编辑文字和图片。"
+        : customHtml && editorMode === "rich" ? "正在使用富文本编辑。修改正文后，自定义 HTML 布局和样式可能简化。"
         : editorMode === "source" ? "支持 Markdown 与 HTML 混合编写，源码将原样保存。"
-        : "可视化编辑正文，也可以切换到 Markdown / HTML 输入源码。";
+        : "可直接编辑文字和图片，也可以切换到 Markdown / HTML 输入源码。";
     }
     function renderContentPreview(content) {
-      const html = marked.parse(content);
-      $("content-preview").srcdoc = `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https: http: data: blob:; style-src 'unsafe-inline' https: http:; font-src https: http: data:;"><base href="${escapeHtml(location.origin)}/"><style>body{margin:0;padding:28px;color:#35435b;font:15px/1.8 system-ui,sans-serif;overflow-wrap:anywhere}img,video{max-width:100%;height:auto}pre{padding:16px;background:#f4f6fa;border-radius:8px;overflow:auto}code{font-family:Consolas,monospace}blockquote{margin-left:0;border-left:3px solid #cbd2f6;padding-left:18px;color:#8490a3}table{border-collapse:collapse}td,th{padding:8px 12px;border:1px solid #e5e9f1}a{color:#5264db}</style></head><body>${html}</body></html>`;
+      const status = $("preview-status");
+      try {
+        const html = marked.parse(content);
+        // A fresh frame avoids blank Chromium surfaces after hiding/reusing a sandboxed srcdoc frame.
+        const frame = document.createElement("iframe");
+        frame.id = "content-preview";
+        frame.title = "文章正文预览";
+        frame.setAttribute("sandbox", "");
+        frame.referrerPolicy = "no-referrer";
+        status.textContent = content.trim() ? "正在加载预览…" : "暂无正文内容";
+        status.classList.remove("hidden");
+        frame.onload = () => { if (content.trim()) status.classList.add("hidden"); };
+        frame.srcdoc = `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https: http: data: blob:; style-src 'unsafe-inline' https: http:; font-src https: http: data:;"><base href="${escapeHtml(location.origin)}/"><style>body{margin:0;padding:28px;color:#35435b;font:15px/1.8 system-ui,sans-serif;overflow-wrap:anywhere}img,video{max-width:100%;height:auto}pre{padding:16px;background:#f4f6fa;border-radius:8px;overflow:auto}code{font-family:Consolas,monospace}blockquote{margin-left:0;border-left:3px solid #cbd2f6;padding-left:18px;color:#8490a3}table{border-collapse:collapse}td,th{padding:8px 12px;border:1px solid #e5e9f1}a{color:#5264db}</style></head><body>${html}</body></html>`;
+        $("content-preview")?.remove();
+        $("preview-panel").appendChild(frame);
+      } catch (error) {
+        $("content-preview")?.remove();
+        status.classList.remove("hidden");
+        status.textContent = "预览生成失败，请返回编辑模式重试。";
+        setStatus(error.message || "预览生成失败", true);
+      }
     }
     function setEditorMode(mode) {
       const content = getArticleContent();
-      if (mode === "rich" && containsHtml(content)) return;
+      if (mode === "rich" && editorMode !== "rich" && requiresHtmlConversion(content)
+        && !confirm("这篇文章包含自定义 HTML 布局或样式。富文本可以编辑文字和图片，但修改后可能简化这些布局或样式。是否继续？\n只查看、不修改正文时，会保留原始源码。")) return;
       articleSource = content;
       if (mode === "source") $("source-editor").value = content;
       if (mode === "rich" && editorMode !== "rich") syncRichEditor(content);
       editorMode = mode;
       $("editor").classList.toggle("hidden", mode !== "rich");
       $("source-panel").classList.toggle("hidden", mode !== "source");
-      $("content-preview").classList.toggle("hidden", mode !== "preview");
+      $("preview-panel").classList.toggle("hidden", mode !== "preview");
+      if (mode !== "preview") $("content-preview")?.remove();
       document.querySelectorAll("[data-editor-mode]").forEach((button) => {
         const active = button.dataset.editorMode === mode;
         button.classList.toggle("active", active);
@@ -112,7 +148,7 @@
       $("source-editor").value = content;
       richDirty = false;
       editorMode = "source";
-      setEditorMode(containsHtml(content) ? "source" : "rich");
+      setEditorMode(requiresHtmlConversion(content) ? "source" : "rich");
     }
     document.querySelectorAll("[data-editor-mode]").forEach((button) => button.onclick = () => setEditorMode(button.dataset.editorMode));
     $("source-editor").addEventListener("input", updateEditorHelp);

@@ -18,6 +18,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "type-check": "tsc --noEmit",
+    "test:admin-browser": "node --test tests/admin-editor-browser.test.mjs",
     "test": "node --experimental-strip-types --test tests/admin-regressions.test.mjs tests/markdown-enhancements.test.mjs tests/layout-regressions.test.mjs tests/image-loading.test.mjs tests/music-player-loading.test.mjs && node tests/crypto.test.mjs",
     "prepare-fonts": "node scripts/prepare-fonts.mjs",
     "check-fonts": "node scripts/check-font-loading.mjs",

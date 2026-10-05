@@ -14,6 +14,7 @@ const script = html.match(/<script>([\s\S]*?)<\/script>/u)[1];
 
 function editorHarness() {
 	const document = parse(html);
+	document.createElement = (tag) => parse(`<${tag}></${tag}>`).firstChild;
 	for (const node of document.querySelectorAll("[id]")) {
 		node.value = "";
 		node.addEventListener = () => {};
@@ -21,6 +22,7 @@ function editorHarness() {
 	}
 	for (const node of document.querySelectorAll("select")) node.value = "recent";
 	let richContent = "";
+	const confirmations = [];
 	const listeners = {};
 	const context = vm.createContext({
 		$: (id) => document.querySelector(`#${id}`),
@@ -28,6 +30,8 @@ function editorHarness() {
 		location: { origin: "https://example.test" },
 		escapeHtml: (value) => String(value).replaceAll('"', "&quot;"),
 		dateValue: (value) => String(value || "").slice(0, 10),
+		confirm: (message) => { confirmations.push(message); return false; },
+		setStatus() {},
 		editor: {
 			on: (name, callback) => { listeners[name] = callback; },
 			setMarkdown: (value) => { richContent = value; listeners.change?.(); },
@@ -36,7 +40,7 @@ function editorHarness() {
 	});
 	vm.runInContext(fs.readFileSync(path.join(root, "local-admin/vendor/marked.umd.js"), "utf8"), context);
 	vm.runInContext(script.slice(script.indexOf("    // Keep the source authoritative"), script.indexOf("    function fileToBase64")), context);
-	return { context, document, editRich(value) { richContent = value; listeners.change(); } };
+	return { context, document, confirmations, editRich(value) { richContent = value; listeners.change(); } };
 }
 
 test("admin JavaScript compiles", () => { new vm.Script(script); });
@@ -58,17 +62,18 @@ test("all four navigation lists sort by modified date, falling back to publicati
 	assert.equal(entries[0].id, "post", "sorting must not mutate the API result");
 });
 
-test("HTML and mixed Markdown survive edit, preview and save without WYSIWYG conversion", () => {
-	const { context, document } = editorHarness();
+test("custom HTML survives preview and declining a rich-text conversion", () => {
+	const { context, document, confirmations } = editorHarness();
 	const source = '# Hello\n\n<div class="custom" data-note="keep" style="color: red">HTML <span>content</span></div>\n\n<style>.custom { padding: 2rem; }</style>\n';
 	context.setArticleContent(source);
 	assert.equal(context.getArticleContent(), source);
-	assert.equal(document.querySelector("#mode-rich").disabled, true);
+	assert.equal(document.querySelector("#mode-rich").disabled, false);
 	context.setEditorMode("preview");
 	assert.match(document.querySelector("#content-preview").srcdoc, /<h1>Hello<\/h1>/u);
 	assert.match(document.querySelector("#content-preview").srcdoc, /data-note="keep" style="color: red"/u);
 	assert.equal(document.querySelector("#content-preview").getAttribute("sandbox"), "");
 	context.setEditorMode("rich");
+	assert.equal(confirmations.length, 1);
 	assert.equal(context.getArticleContent(), source);
 	context.setEditorMode("source");
 	document.querySelector("#source-editor").value += "\n<!-- saved exactly -->";
@@ -91,7 +96,36 @@ test("Markdown modes retain edits and HTML examples inside code stay editable", 
 	document.querySelector("#source-editor").value = "**Source edit**";
 	context.setEditorMode("rich");
 	assert.equal(context.getArticleContent(), "**Source edit**");
-	assert.equal(context.containsHtml("Text <span style='color:red'>inline HTML</span>"), true);
+	assert.equal(context.requiresHtmlConversion("Text <span style='color:red'>inline HTML</span>"), true);
+});
+
+test("images, HTML line breaks and basic formatting open directly in rich text", () => {
+	const { context, document, confirmations, editRich } = editorHarness();
+	const source = 'Before\n\n![Photo](/images/photo.png)\n\n<br>\n<br />\n\n<img src="/images/other.png" alt="Other">\n\n**After**';
+	context.setArticleContent(source);
+	assert.equal(context.requiresHtmlConversion(source), false);
+	assert.equal(document.querySelector("#mode-rich").getAttribute("aria-pressed"), "true");
+	assert.equal(confirmations.length, 0);
+	assert.equal(context.getArticleContent(), source);
+	editRich(source + "\nAdded text");
+	assert.equal(context.getArticleContent(), source + "\nAdded text");
+	assert.equal(context.requiresHtmlConversion('<img src="/photo.jpg" width="300" style="border-radius: 8px">'), true);
+});
+
+test("each preview creates a fresh frame, including after changing articles", () => {
+	const { context, document } = editorHarness();
+	context.setArticleContent("# First");
+	context.setEditorMode("preview");
+	const first = document.querySelector("iframe");
+	context.setEditorMode("source");
+	assert.equal(document.querySelector("iframe"), null);
+	context.setArticleContent("# Resume\n\n" + "A paragraph.\n\n".repeat(50));
+	context.setEditorMode("preview");
+	const next = document.querySelector("iframe");
+	assert.notEqual(next, first);
+	assert.match(next.srcdoc, /<h1>Resume<\/h1>/u);
+	assert.match(next.srcdoc, /name="referrer" content="no-referrer"/u);
+	assert.equal(next.getAttribute("sandbox"), "");
 });
 
 test("online API persists modification dates and exposes article updated dates", async (t) => {
