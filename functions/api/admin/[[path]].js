@@ -1,3 +1,5 @@
+import { uploadImage, UploadError, upsertAlbumImage, removeAlbumImage } from "../../../lib/admin-r2.mjs";
+
 const encoder = new TextEncoder();
 const DEFAULT_ADMIN_USERNAME = "s0xu";
 const DEFAULT_ADMIN_PASSWORD_HASH = "pbkdf2$100000$C7swkKIj2URzTxVRlCFa+w==$L3mbpyVRwv3qoHBaupAMV7URl9fioA1HhyE+fEGPCRU=";
@@ -211,6 +213,7 @@ export async function onRequest(context) {
 		if (action === "logout") return json({ ok: true }, 200, { "set-cookie": "mizuki_admin=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict" });
 		if (action === "session") return json({ authenticated: await validSession(request, env) }, 200, { "cache-control": "no-store" });
 		if (!(await validSession(request, env))) return json({ error: "未登录" }, 401);
+		if (request.method === "POST" && action === "upload") return json({ ok: true, ...await uploadImage(request, env) });
 		if (request.method === "POST" && action === "deploy") {
 			const config = githubConfig(env);
 			await ensureEditBranch(env);
@@ -266,10 +269,24 @@ export async function onRequest(context) {
 			const body = await request.json(); const id = safePath(body.id); const path = `public/images/albums/${id}/info.json`; return json({ ok: true, result: await deleteFile(env, path, `在线删除相册 ${id}`) });
 		}
 		if (action === "album-image" && request.method === "POST") {
-			const body = await request.json(); const id = safePath(body.albumId); const path = `public/images/albums/${id}/info.json`; const file = await readFile(env, path); const info = JSON.parse(file.content); const images = Array.isArray(info.images) ? info.images : []; const image = { id: String(body.id || body.publicId || body.url), name: String(body.name || body.publicId || "image"), publicId: body.publicId || "", deleteToken: body.deleteToken || "", url: String(body.url || ""), cover: body.cover === true }; if (!image.url) throw new Error("图片地址不能为空"); if (image.cover) { for (const old of images) old.cover = false; info.cover = image.url; } const index = images.findIndex((old) => old.id === image.id || old.publicId === image.publicId || old.url === image.url); if (index >= 0) images[index] = { ...images[index], ...image }; else images.push(image); info.images = images; info.updated = new Date().toISOString(); const result = await commitFile(env, path, JSON.stringify(info, null, 2), `在线更新相册图片 ${id}`, file.sha); return json({ ok: true, url: image.url, result });
+			const body = await request.json();
+			const id = safePath(body.albumId);
+			const path = `public/images/albums/${id}/info.json`;
+			const file = await readFile(env, path);
+			const info = JSON.parse(file.content);
+			const image = upsertAlbumImage(info, body);
+			const result = await commitFile(env, path, JSON.stringify(info, null, 2), `在线更新相册图片 ${id}`, file.sha);
+			return json({ ok: true, url: image.url, result });
 		}
 		if (action === "album-image" && request.method === "DELETE") {
-			const body = await request.json(); const id = safePath(body.albumId); const path = `public/images/albums/${id}/info.json`; const file = await readFile(env, path); const info = JSON.parse(file.content); const images = Array.isArray(info.images) ? info.images : []; const next = images.filter((image) => image.name !== body.name && image.id !== body.name && image.publicId !== body.name && image.url !== body.name); if (next.length === images.length) throw new Error("图片不存在"); if (images.length !== next.length && images.find((image) => image.name === body.name && image.cover)) delete info.cover; info.images = next; info.updated = new Date().toISOString(); const result = await commitFile(env, path, JSON.stringify(info, null, 2), `在线删除相册图片 ${id}`, file.sha); return json({ ok: true, result });
+			const body = await request.json();
+			const id = safePath(body.albumId);
+			const path = `public/images/albums/${id}/info.json`;
+			const file = await readFile(env, path);
+			const info = JSON.parse(file.content);
+			removeAlbumImage(info, body.id || body.name);
+			const result = await commitFile(env, path, JSON.stringify(info, null, 2), `在线删除相册图片 ${id}`, file.sha);
+			return json({ ok: true, result });
 		}
 		if (request.method === "GET" && action === "file") {
 			const path = contentPath(new URL(request.url).searchParams.get("path"));
@@ -287,6 +304,6 @@ export async function onRequest(context) {
 		}
 		return json({ error: "接口不存在" }, 404);
 	} catch (error) {
-		return json({ error: error instanceof Error ? error.message : "操作失败" }, 400);
+		return json({ error: error instanceof Error ? error.message : "操作失败" }, error instanceof UploadError ? error.status : 400);
 	}
 }

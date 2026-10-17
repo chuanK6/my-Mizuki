@@ -2,7 +2,9 @@
 
 项目名称是 Mizuki（当前仓库为 `my-Mizuki`）。它是一个基于 Astro 的中文个人博客/个人主页，用于展示文章、日记、相册、项目、技能、时间线等内容，并提供响应式布局、深色模式、搜索、文章加密、图片画廊和多语言基础设施。
 
-当前项目以中文为主要语言，站点输出为静态 HTML。文章、日记、项目和相册内容都保存在仓库中，推送到 GitHub 后由 Cloudflare Pages 构建。仓库还包含一个可部署的 `/admin/` 可视化管理后台：后台登录后可编辑内容，图片上传到 Cloudinary，内容修改先提交到编辑分支，点击部署后再合并到 `master`，从而减少频繁构建。
+当前项目以中文为主要语言，站点输出为静态 HTML。文章、日记、项目和相册内容都保存在仓库中，推送到 GitHub 后由 Cloudflare Pages 构建。仓库还包含一个可部署的 `/admin/` 可视化管理后台：后台登录后可编辑内容，图片通过后台接口上传到 Cloudflare R2，内容修改先提交到编辑分支，点击部署后再合并到 `master`，从而减少频繁构建。
+
+网站使用 `https://klt.ccwu.cc/`，保持绑定 Cloudflare Pages；R2 的 `boke` 桶使用独立图片域名 `https://cdn.klt.ccwu.cc`，本地和线上 `R2_PUBLIC_URL` 均应填写该图片域名。不要将网站主域名绑定到 R2。
 
 # 2. 技术栈
 
@@ -18,7 +20,7 @@
 - Pagefind：构建后生成站内搜索索引。
 - Cloudflare Pages Functions：线上后台 API、登录会话和 GitHub 操作。
 - GitHub REST API：线上后台读取、创建、更新、删除仓库内容。
-- Cloudinary Unsigned Upload：后台图片直传，当前统一使用 `boke` 目录。
+- Cloudflare R2：后台统一上传接口，线上使用 R2 绑定、本地使用 S3 签名；新图写入 `boke/<模块>/<年>/<月>/`。旧 Cloudinary 地址保持兼容。
 - pnpm：依赖管理和项目命令执行。
 
 # 3. 核心目录
@@ -29,7 +31,7 @@
 - `src/config/`：站点总配置、主题、页面开关、导航和功能选项。
 - `src/content/posts/`：文章 Markdown/MDX 文件。
 - `src/data/`：日记、项目、技能、时间线等 TypeScript 数据。
-- `public/images/albums/`：本地相册目录，每个相册通常包含 `info.json` 和本地图片；Cloudinary 图片记录也写入 `info.json`。
+- `public/images/albums/`：本地相册目录，每个相册通常包含 `info.json` 和本地图片；远程图片记录也写入 `info.json`。
 - `src/plugins/`：Markdown remark/rehype 扩展和构建期内容处理。
 - `src/loaders/`：自定义文章加载器，负责读取文件并处理日期标记。
 - `functions/`：Cloudflare Pages Functions。线上 `/api/admin/*` 后端位于此处。
@@ -49,9 +51,12 @@
 - `src/utils/album-scanner.ts`：扫描本地相册、选择封面、排除 `cover.*`、合并 `info.json` 中的远程图片。改相册读取逻辑先看这里。
 - `src/data/diary.ts`：日记数据和日记查询函数。
 - `src/data/projects.ts`：项目数据、状态和项目查询函数。
-- `local-admin/index.html`：后台全部界面和浏览器端逻辑，包括文章富文本、Cloudinary 上传、日记/项目/相册管理。
+- `local-admin/index.html`：后台全部界面和浏览器端逻辑，包括文章富文本、R2 上传、日记/项目/相册管理。
 - `scripts/prepare-admin.mjs`：构建后把 `local-admin/` 复制为 `dist/admin/`，不要只修改生成目录。
 - `scripts/normalize-post-frontmatter.mjs`：构建前把带引号的日期规范为 YAML 日期，避免 Astro schema 报错。
+- `lib/admin-r2.mjs`：图片大小/类型检查、R2 原生绑定与 S3 签名上传、相册图片元数据兼容处理。
+- `scripts/local-r2-upload.mjs`：本地环境配置读取和 Node 请求适配。
+- `docs/r2-storage.md`：创建 R2 桶、公开访问域名和本地/线上配置步骤。
 - `functions/api/admin/[[path]].js`：线上认证、Cookie 会话、GitHub 分支/文件读写、部署合并和相册图片元数据 API。
 - `.github/workflows/deploy.yml`：当前 GitHub Actions 构建并发布 `pages` 分支的流程；Cloudflare 若使用 Functions，应直接连接包含 `functions/` 的 `master`。
 
@@ -59,9 +64,9 @@
 
 文章数据在 `src/content/posts/*.md` 或 `*.mdx`，正文是 Markdown，头部 frontmatter 至少需要 `title` 和 `published`。`published`/`updated` 应写成 `YYYY-MM-DD` 等 YAML 日期，而不是带引号的普通字符串。
 
-日记在 `src/data/diary.ts` 的 `diaryData` 数组中；项目在 `src/data/projects.ts` 的 `projectsData` 数组中。相册元数据在 `public/images/albums/<id>/info.json`，本地图片位于同目录；远程图片以 `images` 数组记录 URL、public ID、名称和封面状态。
+日记在 `src/data/diary.ts` 的 `diaryData` 数组中；项目在 `src/data/projects.ts` 的 `projectsData` 数组中。相册元数据在 `public/images/albums/<id>/info.json`，本地图片位于同目录；远程图片以 `images` 数组记录 URL、R2 key、存储类型、名称和封面状态，兼容旧 Cloudinary public ID。
 
-浏览器页面通过 `src/pages/api/` 提供的公开数据接口和构建期数据工作。线上管理 API 是 `functions/api/admin/[[path]].js`，包括登录、会话、文章、日记、项目、相册、相册图片和部署接口。后台前端通过同源 `/api/admin/...` 调用它，图片直接从浏览器上传到 Cloudinary。
+浏览器页面通过 `src/pages/api/` 提供的公开数据接口和构建期数据工作。线上管理 API 是 `functions/api/admin/[[path]].js`，包括登录、会话、文章、日记、项目、相册、相册图片和部署接口。后台前端通过同源 `/api/admin/...` 调用它，图片统一通过同源 `/api/admin/upload/` 上传到 R2，浏览器不接触访问密钥。
 
 重要环境变量/Secrets：`ENABLE_CONTENT_SYNC`、`CONTENT_REPO_URL`、`CONTENT_DIR`（可选内容分离）；`BILI_SESSDATA`（可选 Bilibili 数据）；`SESSION_SECRET`、`GITHUB_TOKEN`（线上后台必需）；`GITHUB_OWNER`、`GITHUB_REPO`、`GITHUB_BRANCH`、`GITHUB_EDIT_BRANCH`（GitHub 后台目标配置，默认仓库为 `chuanK6/my-Mizuki`，主分支 `master`，编辑分支 `content-draft`）。不要把 Token、密码或 Secret 写入源码。
 
@@ -79,11 +84,11 @@ flowchart LR
   G --> E[content-draft 分支]
   E -->|部署按钮合并| M[master]
   M --> B
-  P -->|图片直传| CL[Cloudinary]
-  CL --> F
+  P -->|图片上传| F
+  F --> R2[Cloudflare R2]
 ```
 
-普通访问是“文件内容 → Astro 集合/扫描器 → 页面组件 → 静态 HTML”。管理员访问 `/admin/` 后，Function 先校验会话，再通过 GitHub API 读取编辑分支文件。保存只提交编辑分支，不触发构建；部署按钮请求合并编辑分支到 `master`，Cloudflare Pages 监听 `master` 后才重新构建。文章图片、日记图片、项目图片和相册图片均可先上传 Cloudinary，再把返回 URL 写入对应内容。
+普通访问是“文件内容 → Astro 集合/扫描器 → 页面组件 → 静态 HTML”。管理员访问 `/admin/` 后，Function 先校验会话，再通过 GitHub API 读取编辑分支文件。保存只提交编辑分支，不触发构建；部署按钮请求合并编辑分支到 `master`，Cloudflare Pages 监听 `master` 后才重新构建。文章图片、日记图片、项目图片和相册图片均可先上传 R2，再把返回 URL 写入对应内容。
 
 # 7. 怎么运行
 
@@ -125,10 +130,10 @@ corepack pnpm preview
 - 改线上管理行为先看 `functions/api/admin/[[path]].js`。GitHub Token 只能在 Cloudflare Secret 中保存；前端只能调用同源 API。
 - 保存与部署是两个动作：保存写入 `content-draft`，部署才合并到 `master`。修改分支逻辑时要考虑 GitHub 文件 SHA、并发编辑和 Pages 构建延迟。
 - Cloudflare Web Crypto 的 PBKDF2 迭代次数上限为 `100000`，不要把后台密码哈希改成更高值。登录 Cookie 是会话 Cookie，关闭浏览器后应重新登录。
-- Cloudinary 使用 unsigned preset，Cloud Name 和 preset 会出现在浏览器端，不能当作机密；应限制上传类型/大小并关注用量。删除相册图片主要删除 GitHub 中的元数据，Cloudinary 资源的彻底删除受删除令牌/权限限制。
+- R2 上传只接受 JPEG/PNG/GIF/WebP/AVIF，单图上限 10 MB。线上配置 `R2_BUCKET` 绑定和 `R2_PUBLIC_URL`；本地将 S3 凭据保存在 `.env.local`，详见 `docs/r2-storage.md`。相册移除只删除引用，R2 对象保留，避免破坏已发布或共享引用。不要改写已有 Cloudinary 内容地址。
 - `astro.config.mjs` 中的 Markdown 插件顺序、字体配置和静态输出设置彼此有关，不要为解决单页问题随意移除全局插件。
 - 保留用户已有文章、日记、项目、相册和图片。提交前运行 `astro check`、`pnpm run build`，并检查 `git diff --check`。
 
 # AI 快速上手
 
-这是一个 Astro 7 + TypeScript 的静态中文个人博客。文章在 `src/content/posts`，日记和项目分别在 `src/data/diary.ts`、`src/data/projects.ts`，相册在 `public/images/albums`，页面和组件主要位于 `src/pages`、`src/components`，总配置在 `src/config/siteConfig.ts`。相册扫描逻辑看 `src/utils/album-scanner.ts`，文章 schema 看 `src/content.config.ts`。后台源码是 `local-admin/index.html`，构建时复制到 `/admin`；线上 API 在 `functions/api/admin/[[path]].js`，通过 GitHub REST API 把保存内容写入 `content-draft`，部署按钮再合并到 `master`，Cloudflare Pages 才重建。图片直传 Cloudinary。安装依赖用 `corepack pnpm install`，开发用 `corepack pnpm dev`，检查用 `corepack pnpm exec astro check`，构建用 `corepack pnpm run build`。修改前先确认数据文件、页面组件、扫描器和后台字段是否联动，尤其保持文章日期为 YAML 日期且不要泄露任何 Secret。
+这是一个 Astro 7 + TypeScript 的静态中文个人博客。文章在 `src/content/posts`，日记和项目分别在 `src/data/diary.ts`、`src/data/projects.ts`，相册在 `public/images/albums`，页面和组件主要位于 `src/pages`、`src/components`，总配置在 `src/config/siteConfig.ts`。相册扫描逻辑看 `src/utils/album-scanner.ts`，文章 schema 看 `src/content.config.ts`。后台源码是 `local-admin/index.html`，构建时复制到 `/admin`；线上 API 在 `functions/api/admin/[[path]].js`，通过 GitHub REST API 把保存内容写入 `content-draft`，部署按钮再合并到 `master`，Cloudflare Pages 才重建。图片统一经后台上传到 R2，旧 Cloudinary 地址继续保留。安装依赖用 `corepack pnpm install`，开发用 `corepack pnpm dev`，检查用 `corepack pnpm exec astro check`，构建用 `corepack pnpm run build`。修改前先确认数据文件、页面组件、扫描器和后台字段是否联动，尤其保持文章日期为 YAML 日期且不要泄露任何 Secret。

@@ -3,8 +3,10 @@ import fs from "node:fs";
 import path from "node:path";
 import http from "node:http";
 import { spawn } from "node:child_process";
+import { Readable } from "node:stream";
 import { pathToFileURL } from "node:url";
 import test from "node:test";
+import { uploadImage } from "../lib/admin-r2.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const browserPath = process.env.ADMIN_TEST_BROWSER || [
@@ -14,7 +16,7 @@ const browserPath = process.env.ADMIN_TEST_BROWSER || [
 ].find((file) => fs.existsSync(file));
 const pluginPath = path.join(root, "scripts/admin-vite-plugin.mjs");
 
-test("preview renders after repeated mode/article changes and image posts remain editable", {
+test("editor previews and all four R2 upload flows work in the browser", {
 	skip: !browserPath || !fs.existsSync(pluginPath), timeout: 60000,
 }, async () => {
 	const cache = path.join(root, "cache");
@@ -32,18 +34,29 @@ test("preview renders after repeated mode/article changes and image posts remain
 	for (const [name, content] of [["image", imageContent], ["resume", resumeContent]]) {
 		write(`src/content/posts/${name}.md`, `---\ntitle: ${name}\npublished: 2026-10-05\n---\n${content}`);
 	}
+	write("src/data/diary.ts", "const diaryData: DiaryItem[] = [];\n\n// 获取日记列表\n");
+	write("src/data/projects.ts", "export const projectsData: Project[] = [];\n\n// Get project statistics\n");
+	const uploads = [];
+	const r2Env = { R2_PUBLIC_URL: "https://images.example.test", R2_BUCKET: { async put(key, bytes) { uploads.push({ key, size: bytes.length }); } } };
 	let server, browser, socket, stopTimer;
 	try {
 		process.chdir(fixture);
 		const { default: createPlugin } = await import(pathToFileURL(pluginPath));
 		let middleware;
 		createPlugin().configureServer({ middlewares: { use(handler) { middleware = handler; } } });
-		server = http.createServer((req, res) => middleware(req, res, () => {
+		server = http.createServer((req, res) => {
+			if (req.url === "/api/admin/upload/") {
+				const request = new Request(`http://${req.headers.host}${req.url}`, { method: "POST", headers: req.headers, body: Readable.toWeb(req), duplex: "half" });
+				void uploadImage(request, r2Env).then((image) => { res.setHeader("Content-Type", "application/json"); res.end(JSON.stringify({ ok: true, ...image })); }).catch((error) => { res.writeHead(error.status || 500); res.end(JSON.stringify({ error: error.message })); });
+				return;
+			}
+			return middleware(req, res, () => {
 			if (req.url === "/images/pixel.svg") {
 				res.setHeader("Content-Type", "image/svg+xml");
 				res.end('<svg xmlns="http://www.w3.org/2000/svg" width="160" height="80"><rect width="160" height="80" fill="#5264db"/></svg>');
 			} else { res.writeHead(404); res.end(); }
-		}));
+			});
+		});
 		await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
 		const origin = `http://127.0.0.1:${server.address().port}`;
 		browser = spawn(browserPath, ["--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", "--remote-debugging-port=0", `--user-data-dir=${path.join(fixture, "browser-profile")}`, "about:blank"], { windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
@@ -152,6 +165,35 @@ test("preview renders after repeated mode/article changes and image posts remain
 		await waitFor(() => evaluate("richDirty"));
 		await evaluate("savePost()");
 		assert.match(await evaluate("getArticleContent()"), /简历补充内容/u);
+		await evaluate(`window.testUpload = new File([Uint8Array.from(atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX1sAAAAASUVORK5CYII="), c => c.charCodeAt(0))], "same-name.png", {type:"image/png"}); window.chooseUpload = (id, count=1) => { const transfer = new DataTransfer(); for (let i=0;i<count;i++) transfer.items.add(window.testUpload); $(id).files = transfer.files; };`);
+		await evaluate('resetForm(); editor.options.hooks.addImageBlobHook(window.testUpload, (url, alt) => { window.articleUploadUrl=url; editor.exec("addImage", {imageUrl:url, altText:alt}); });');
+		await waitFor(() => evaluate('Boolean(window.articleUploadUrl)'));
+		assert.match(await evaluate("editor.getMarkdown()"), /https:\/\/images\.example\.test\/boke\/posts\//u);
+		await evaluate('switchModule("diary"); loadDiary();');
+		await evaluate('chooseUpload("diary-upload"); uploadDiaryImages();');
+		await waitFor(() => evaluate('$("diary-images").value.includes("/boke/diary/")'));
+		await evaluate('$("diary-content").value="R2 日记测试"; saveDiary();');
+		await waitFor(() => evaluate('diaryItems.length === 1'));
+		assert.match(await evaluate('diaryItems[0].images[0]'), /\/boke\/diary\//u);
+		await evaluate('switchModule("projects"); loadProjects();');
+		await evaluate('chooseUpload("project-upload"); uploadProjectImage();');
+		await waitFor(() => evaluate('$("project-image").value.includes("/boke/projects/")'));
+		await evaluate('$("project-id").value="r2-project"; $("project-title").value="R2 项目"; $("project-description").value="封面测试"; saveProject();');
+		await waitFor(() => evaluate('projectItems.length === 1'));
+		assert.match(await evaluate('projectItems[0].image'), /\/boke\/projects\//u);
+		await evaluate('switchModule("albums"); loadAlbums();');
+		await evaluate('$("album-id").value="r2-album"; $("album-title").value="R2 相册"; saveAlbum();');
+		await waitFor(() => evaluate('albumCurrent === "r2-album"'));
+		await evaluate('chooseUpload("album-upload", 2); uploadAlbumImages();');
+		await waitFor(() => evaluate('albumItems[0]?.images.length === 2'));
+		assert.equal(await evaluate('albumItems[0].images[0].storage'), "r2");
+		assert.notEqual(await evaluate('albumItems[0].images[0].key'), await evaluate('albumItems[0].images[1].key'));
+		await evaluate('setAlbumCover(albumItems[0].images[1].id)');
+		assert.equal(await evaluate('albumItems[0].cover === albumItems[0].images[1].url'), true);
+		await evaluate('deleteAlbumImage(albumItems[0].images[0].id)');
+		assert.equal(await evaluate('albumItems[0].images.length'), 1);
+		assert.equal(uploads.length, 5);
+		assert.ok(uploads.every((image) => image.size > 0));
 		assert.deepEqual(errors, []);
 	} finally {
 		clearTimeout(stopTimer);
