@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh_CN">
+  <title>暮日</title>
+  <subtitle>个人博客</subtitle>
+  <link href="https://klt.ccwu.cc/" rel="alternate" type="text/html"/>
+  <link href="https://klt.ccwu.cc/atom.xml" rel="self" type="application/atom+xml"/>
+  <id>https://klt.ccwu.cc/</id>
+  <updated>2026-10-17T00:00:00.000Z</updated>
+  <entry>
+    <title>个人简历</title>
+    <link href="https://klt.ccwu.cc/posts/resume/" rel="alternate" type="text/html"/>
+    <id>https://klt.ccwu.cc/posts/resume/</id>
+    <published>2026-08-30T00:00:00.000Z</published>
+    <updated>2026-10-05T00:00:00.000Z</updated>
+    <summary>个人简历</summary>
+    <content type="html"><![CDATA[<section class="markdown-section"><h1 id="-关于我">👨‍💻 关于我<a class="anchor" href="https://klt.ccwu.cc/posts/resume/#-%E5%85%B3%E4%BA%8E%E6%88%91"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h1><blockquote>
+<p><strong>Java 开发 · Web 开发 · AI 辅助编程 · 计算机技术爱好者</strong></p>
+</blockquote><p>你好，我是 <strong>一名计算机专业本科毕业生</strong>，主修 <strong>Java</strong>，目前主要关注 <strong>Java 后端、Web 开发以及 AI 辅助编程</strong>。</p><p>我喜欢折腾计算机相关的技术，从软件开发到电脑系统，从代码编写到问题排查，希望通过不断实践，把想法真正变成可以运行的项目。</p><hr /><section class="markdown-section"><h2 id="-个人优势">🚀 个人优势<a class="anchor" href="https://klt.ccwu.cc/posts/resume/#-%E4%B8%AA%E4%BA%BA%E4%BC%98%E5%8A%BF"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h2><section class="markdown-section"><h3 id="-计算机专业背景">🎓 计算机专业背景<a class="anchor" href="https://klt.ccwu.cc/posts/resume/#-%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%93%E4%B8%9A%E8%83%8C%E6%99%AF"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h3><p>计算机本科毕业，主修 <strong>Java</strong>，具备较为系统的计算机基础知识和软件开发相关知识。</p><p>在学习和实践过程中，接触并掌握了包括：</p><ul>
+<li>Java</li>
+<li>Web 开发</li>
+<li>数据库</li>
+<li>软件开发基础</li>
+<li>项目开发与维护</li>
+<li>常见计算机软硬件知识</li>
+</ul><p>具备独立阅读、理解、修改和完善项目代码的能力。</p><hr /></section><section class="markdown-section"><h3 id="-项目开发实践">💻 项目开发实践<a class="anchor" href="https://klt.ccwu.cc/posts/resume/#-%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E5%AE%9E%E8%B7%B5"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h3><p>具备实际项目开发经验，能够参与项目从 <strong>需求分析 → 功能开发 → 问题排查 → 优化完善</strong> 的完整过程。</p><p>在开发过程中，我也比较注重借助现代开发工具提升效率。</p><p>目前熟悉使用：</p><blockquote>
+<p><strong>Codex · Claude Code · AI 辅助编程工具</strong></p>
+</blockquote><p>通过 AI 辅助，可以更高效地完成：</p><ul>
+<li>代码编写</li>
+<li>功能实现</li>
+<li>Bug 排查</li>
+<li>项目代码理解</li>
+<li>代码优化</li>
+<li>技术方案分析</li>
+<li>重构与完善</li>
+</ul><p>我更倾向于把 AI 当作一个 <strong>开发助手和技术伙伴</strong>，而不是简单依赖 AI 生成代码。</p><hr /></section><section class="markdown-section"><h3 id="-计算机教学经验">🧑‍🏫 计算机教学经验<a class="anchor" href="https://klt.ccwu.cc/posts/resume/#-%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%95%99%E5%AD%A6%E7%BB%8F%E9%AA%8C"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h3><p>拥有 <strong>一年以上计算机教学经验</strong>，在教学过程中积累了较好的沟通、表达和问题分析能力。</p><p>教学经历让我更加重视：</p><blockquote>
+<p><strong>把复杂的问题讲清楚，把抽象的知识变得容易理解。</strong></p>
+</blockquote><p>同时也锻炼了自己的耐心、逻辑思维以及与不同学习者沟通的能力。</p><hr /></section><section class="markdown-section"><h3 id="️-计算机软硬件兴趣">🖥️ 计算机软硬件兴趣<a class="anchor" href="https://klt.ccwu.cc/posts/resume/#%EF%B8%8F-%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%BD%AF%E7%A1%AC%E4%BB%B6%E5%85%B4%E8%B6%A3"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h3><p>我对计算机软硬件一直保持着浓厚的兴趣。</p><p>熟悉 <strong>Windows 等常用操作系统</strong>，具备：</p><ul>
+<li>Windows 系统安装与维护</li>
+<li>软件安装与配置</li>
+<li>常见系统问题排查</li>
+<li>电脑基础维护</li>
+<li>常见硬件问题分析</li>
+<li>计算机硬件组成与基础知识</li>
+</ul><p>相比单纯使用电脑，我更喜欢研究：</p><blockquote>
+<p><strong>“它为什么会这样？”</strong></p>
+</blockquote><p>遇到问题时，也习惯通过日志、搜索、测试和分析等方式寻找原因。</p><hr /></section></section><section class="markdown-section"><h2 id="-学习与技术方向">🧠 学习与技术方向<a class="anchor" href="https://klt.ccwu.cc/posts/resume/#-%E5%AD%A6%E4%B9%A0%E4%B8%8E%E6%8A%80%E6%9C%AF%E6%96%B9%E5%90%91"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h2><p>我的学习能力和适应能力较强，对新技术和新工具保持持续关注。</p><p>目前比较感兴趣的方向：</p><div class="expressive-code"><figure class="frame" data-language="text"><figcaption class="header"></figcaption><pre data-language="text" class="wrap" style="--ecMaxLine:20ch"><code><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">1</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">Java 后端</span></div></div><div class="ec-line" style="--ecIndent:5ch"><div class="gutter"><div class="ln" aria-hidden="true">2</div></div><div class="code"><span class="indent"><span style="--0:#24292e;--1:#e1e4e8">     </span></span><span style="--0:#24292e;--1:#e1e4e8">↓</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">3</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">Spring / Spring Boot</span></div></div><div class="ec-line" style="--ecIndent:5ch"><div class="gutter"><div class="ln" aria-hidden="true">4</div></div><div class="code"><span class="indent"><span style="--0:#24292e;--1:#e1e4e8">     </span></span><span style="--0:#24292e;--1:#e1e4e8">↓</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">5</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">Web 开发</span></div></div><div class="ec-line" style="--ecIndent:5ch"><div class="gutter"><div class="ln" aria-hidden="true">6</div></div><div class="code"><span class="indent"><span style="--0:#24292e;--1:#e1e4e8">     </span></span><span style="--0:#24292e;--1:#e1e4e8">↓</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">7</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">数据库与系统开发</span></div></div><div class="ec-line" style="--ecIndent:5ch"><div class="gutter"><div class="ln" aria-hidden="true">8</div></div><div class="code"><span class="indent"><span style="--0:#24292e;--1:#e1e4e8">     </span></span><span style="--0:#24292e;--1:#e1e4e8">↓</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">9</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">AI 辅助编程</span></div></div><div class="ec-line" style="--ecIndent:5ch"><div class="gutter"><div class="ln" aria-hidden="true">10</div></div><div class="code"><span class="indent"><span style="--0:#24292e;--1:#e1e4e8">     </span></span><span style="--0:#24292e;--1:#e1e4e8">↓</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">11</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">个人项目实践</span></div></div></code></pre><div class="copy-btn-icon"></div></figure></div><p>我希望通过不断参与实际项目，将理论知识转化为真正的工程实践能力。</p><p>对我来说：</p><blockquote>
+<p><strong>写出代码只是开始，把项目真正做出来、运行起来，并不断完善，才是开发的意义。</strong></p>
+</blockquote><hr /></section><section class="markdown-section"><h2 id="️-技术关键词">🛠️ 技术关键词<a class="anchor" href="https://klt.ccwu.cc/posts/resume/#%EF%B8%8F-%E6%8A%80%E6%9C%AF%E5%85%B3%E9%94%AE%E8%AF%8D"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h2><div class="expressive-code"><figure class="frame" data-language="text"><figcaption class="header"></figcaption><pre data-language="text" class="wrap" style="--ecMaxLine:20ch"><code><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">1</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">Java</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">2</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">Spring Boot</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">3</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">Web Development</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">4</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">MySQL</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">5</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">Git</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">6</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">Linux / Windows</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">7</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">AI Coding</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">8</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">Codex</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">9</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">Claude Code</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">10</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">Software Development</span></div></div><div class="ec-line"><div class="gutter"><div class="ln" aria-hidden="true">11</div></div><div class="code"><span style="--0:#24292e;--1:#e1e4e8">Computer Hardware</span></div></div></code></pre><div class="copy-btn-icon"></div></figure></div><hr /></section><section class="markdown-section"><h2 id="-我的目标">🌱 我的目标<a class="anchor" href="https://klt.ccwu.cc/posts/resume/#-%E6%88%91%E7%9A%84%E7%9B%AE%E6%A0%87"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h2><p>持续学习计算机相关技术，积累更多真实项目经验。</p><p>希望能够在 <strong>Java 后端、Web 开发、AI 辅助编程</strong> 等方向不断深入，同时保持对计算机软硬件的兴趣。</p><blockquote>
+<p><strong>保持好奇，持续学习，认真写代码。</strong></p>
+</blockquote><hr /></section><section class="markdown-section"><h2 id="-联系我">📬 联系我<a class="anchor" href="https://klt.ccwu.cc/posts/resume/#-%E8%81%94%E7%B3%BB%E6%88%91"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h2><p>📧 <strong>邮箱：</strong> <a href="mailto:3389893163@qq.com" data-content-link-kind="email">3389893163@qq.com</a></p><hr /><div><section class="markdown-section"><h3 id="-keep-learning--keep-creating--keep-coding">✨ Keep Learning · Keep Creating · Keep Coding<a class="anchor" href="https://klt.ccwu.cc/posts/resume/#-keep-learning--keep-creating--keep-coding"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h3></section></div></section></section>]]></content>
+    <author><name>暮日的博客</name></author>
+    <category term="简历"/>
+  </entry>
+  <entry>
+    <title>使用R2上传</title>
+    <link href="https://klt.ccwu.cc/posts/r2cunchu/" rel="alternate" type="text/html"/>
+    <id>https://klt.ccwu.cc/posts/r2cunchu/</id>
+    <published>2026-10-17T00:00:00.000Z</published>
+    <updated>2026-10-17T00:00:00.000Z</updated>
+    <summary>使用R2上传图片</summary>
+    <content type="html"><![CDATA[<p>使用R2上传图片测试<img src="https://cdn.klt.ccwu.cc/boke/posts/2026/10/cb968b29-ba60-418f-a4a5-475ef90dc0b6.png" alt="屏幕截图 2026-09-05 153239.png" loading="lazy" decoding="async" /></p>]]></content>
+    <author><name>暮日的博客</name></author>
+    <category term="开发"/>
+  </entry>
+  <entry>
+    <title>Cloudinary图片测试</title>
+    <link href="https://klt.ccwu.cc/posts/cloudinary-test/" rel="alternate" type="text/html"/>
+    <id>https://klt.ccwu.cc/posts/cloudinary-test/</id>
+    <published>2026-09-01T00:00:00.000Z</published>
+    <updated>2026-09-01T00:00:00.000Z</updated>
+    <summary>Cloudinary图片测试</summary>
+    <content type="html"><![CDATA[<p>qqqqqqqqqqqqqqqq
+qqqqqqqqqqqqqqqqqqqqqqqq
+qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
+<img src="https://res.cloudinary.com/wmu4lce4/image/upload/v1788249431/boke/w9c5tadnnco3ql81whot.png" alt="归并排序.png" loading="lazy" decoding="async" /></p>
+<br />
+<br />
+fffffffffffffffffffffffffffffffffffffffffffff]]></content>
+    <author><name>暮日的博客</name></author>
+    <category term="测试"/>
+  </entry>
+  <entry>
+    <title>测试线上更改</title>
+    <link href="https://klt.ccwu.cc/posts/test1/" rel="alternate" type="text/html"/>
+    <id>https://klt.ccwu.cc/posts/test1/</id>
+    <published>2026-09-01T00:00:00.000Z</published>
+    <updated>2026-09-01T00:00:00.000Z</updated>
+    <summary>测试线上更改</summary>
+    <content type="html"><![CDATA[<p><strong>1111111111111111111</strong></p>
+<section class="markdown-section"><h5 id="2222222222222222222222">2222222222222222222222<a class="anchor" href="https://klt.ccwu.cc/posts/test1/#2222222222222222222222"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h5></section>
+<section class="markdown-section"><h3 id="3333333333333333333333333">3333333333333333333333333<a class="anchor" href="https://klt.ccwu.cc/posts/test1/#3333333333333333333333333"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h3></section>
+<section class="markdown-section"><h1 id="4444444444444444444444444444">4444444444444444444444444444<a class="anchor" href="https://klt.ccwu.cc/posts/test1/#4444444444444444444444444444"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h1></section>
+<section class="markdown-section"><h1 id="6666666666666666666666666666666666666">6666666666666666666666666666666666666<a class="anchor" href="https://klt.ccwu.cc/posts/test1/#6666666666666666666666666666666666666"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h1></section>
+<section class="markdown-section"><h1 id="7777777777777777777777777777777777777">7777777777777777777777777777777777777<a class="anchor" href="https://klt.ccwu.cc/posts/test1/#7777777777777777777777777777777777777"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h1></section>
+<section class="markdown-section"><h1 id="888888888888888888888888888888888888888">888888888888888888888888888888888888888<a class="anchor" href="https://klt.ccwu.cc/posts/test1/#888888888888888888888888888888888888888"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h1></section>]]></content>
+    <author><name>暮日的博客</name></author>
+    <category term="测试"/>
+  </entry>
+  <entry>
+    <title>第一篇博客</title>
+    <link href="https://klt.ccwu.cc/posts/hello/" rel="alternate" type="text/html"/>
+    <id>https://klt.ccwu.cc/posts/hello/</id>
+    <published>2026-08-29T00:00:00.000Z</published>
+    <updated>2026-08-29T00:00:00.000Z</updated>
+    <summary>这是我的第一篇博客</summary>
+    <content type="html"><![CDATA[<section class="markdown-section"><h1 id="这是我的第一篇博客">这是我的第一篇博客<a class="anchor" href="https://klt.ccwu.cc/posts/hello/#%E8%BF%99%E6%98%AF%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h1><p><strong>特发此贴记录一下！</strong></p></section>]]></content>
+    <author><name>暮日的博客</name></author>
+    <category term="记录"/>
+  </entry>
+  <entry>
+    <title>测试一下</title>
+    <link href="https://klt.ccwu.cc/posts/test0/" rel="alternate" type="text/html"/>
+    <id>https://klt.ccwu.cc/posts/test0/</id>
+    <published>2026-08-29T00:00:00.000Z</published>
+    <updated>2026-08-29T00:00:00.000Z</updated>
+    <summary>测试bug</summary>
+    <content type="html"><![CDATA[<section class="markdown-section"><h4 id="测试一下是否正常">测试一下是否正常<a class="anchor" href="https://klt.ccwu.cc/posts/test0/#%E6%B5%8B%E8%AF%95%E4%B8%80%E4%B8%8B%E6%98%AF%E5%90%A6%E6%AD%A3%E5%B8%B8"><span class="anchor-icon" data-pagefind-ignore>#</span></a></h4></section>]]></content>
+    <author><name>暮日的博客</name></author>
+    <category term="测试"/>
+  </entry>
+</feed>

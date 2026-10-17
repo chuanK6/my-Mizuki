@@ -1,0 +1,23 @@
+{
+  "mode": "local",
+  "title": "游戏",
+  "description": "游戏图片.",
+  "date": "2026-08-30",
+  "location": "11",
+  "tags": [
+    "游戏"
+  ],
+  "hidden": false,
+  "password": "",
+  "passwordHint": "",
+  "images": [
+    {
+      "id": "boke/ienrxgrdfmttt4s5pyui",
+      "name": "lGSjvGxaFxyEPEW",
+      "publicId": "boke/ienrxgrdfmttt4s5pyui",
+      "deleteToken": "",
+      "url": "https://res.cloudinary.com/wmu4lce4/image/upload/v1788273434/boke/ienrxgrdfmttt4s5pyui.jpg",
+      "cover": false
+    }
+  ]
+}
